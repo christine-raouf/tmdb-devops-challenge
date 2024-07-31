@@ -1,0 +1,13 @@
+Did Challenge 2 and 4
+
+Ansible VM for Task4
+IP  ssh root@172.232.203.175
+PW:   DevOpsChlg1!
+
+
+AWS Creds 
+User name,Password,Console sign-in URL
+Challenge,gC*E7c-3,https://christineraouf.signin.aws.amazon.com/console
+
+
+Region Used Oregon us-west-2
