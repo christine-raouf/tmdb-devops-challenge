@@ -1,0 +1,95 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: ['wget', 'tar', 'curl']
+        state: present
+        update_cache: yes
+
+    - name: Download and install Prometheus
+      shell: |
+        wget https://github.com/prometheus/prometheus/releases/download/v2.30.3/prometheus-2.30.3.linux-amd64.tar.gz
+        tar -xvf prometheus-2.30.3.linux-amd64.tar.gz
+        mv prometheus-2.30.3.linux-amd64 /usr/local/bin/prometheus
+
+    - name: Create Prometheus service
+      copy:
+        content: |
+          [Unit]
+          Description=Prometheus
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=root
+          ExecStart=/usr/local/bin/prometheus/prometheus --config.file=/usr/local/bin/prometheus/prometheus.yml
+
+          [Install]
+          WantedBy=default.target
+        dest: /etc/systemd/system/prometheus.service
+        mode: '0644'
+
+    - name: Enable and start Prometheus
+      systemd:
+        name: prometheus
+        enabled: yes
+        state: started
+
+    - name: Download and install Node Exporter
+      shell: |
+        wget https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz
+        tar -xvf node_exporter-1.2.2.linux-amd64.tar.gz
+        mv node_exporter-1.2.2.linux-amd64/node_exporter /usr/local/bin/
+
+    - name: Create Node Exporter service
+      copy:
+        content: |
+          [Unit]
+          Description=Node Exporter
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=root
+          ExecStart=/usr/local/bin/node_exporter
+
+          [Install]
+          WantedBy=default.target
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+
+    - name: Enable and start Node Exporter
+      systemd:
+        name: node_exporter
+        enabled: yes
+        state: started
+
+    - name: Download and install Alertmanager
+      shell: |
+        wget https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz
+        tar -xvf alertmanager-0.23.0.linux-amd64.tar.gz
+        mv alertmanager-0.23.0.linux-amd64/alertmanager /usr/local/bin/
+
+    - name: Create Alertmanager service
+      copy:
+        content: |
+          [Unit]
+          Description=Alertmanager
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=root
+          ExecStart=/usr/local/bin/alertmanager --config.file=/usr/local/bin/alertmanager/alertmanager.yml
+
+          [Install]
+          WantedBy=default.target
+        dest: /etc/systemd/system/alertmanager.service
+        mode: '0644'
+
+    - name: Enable and start Alertmanager
+      systemd:
+        name: alertmanager
+        enabled: yes
+        state: started
